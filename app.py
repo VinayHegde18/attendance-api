@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify
 from flask import render_template
 import sqlite3
 from datetime import datetime
+import psycopg2
+import os
 
 app = Flask(__name__)
 
