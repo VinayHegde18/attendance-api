@@ -47,7 +47,24 @@ def get_attendance():
 
 def get_db():
     return sqlite3.connect("attendance.db")
-    
+def init_db():
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS attendance (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        empId TEXT,
+        eventType TEXT,
+        timestamp INTEGER
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+
+# 🔥 CALL THIS ON START
+init_db()
 @app.route("/admin")
 def admin():
     return render_template("admin.html")
