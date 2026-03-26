@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask import render_template
 
 app = Flask(__name__)
 
@@ -27,6 +28,10 @@ def attendance():
 def get_attendance():
     return jsonify(data_store), 200
 
+@app.route("/admin")
+def admin():
+    return render_template("admin.html")
+    
 # IMPORTANT: Render uses this
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
