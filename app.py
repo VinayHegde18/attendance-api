@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask import render_template
+import sqlite3
 
 app = Flask(__name__)
 
@@ -14,20 +15,39 @@ def home():
 def attendance():
     data = request.json
 
-    record = {
-        "empId": data.get("empId"),
-        "eventType": data.get("eventType"),
-        "timestamp": data.get("timestamp")
-    }
+    conn = get_db()
+    cursor = conn.cursor()
 
-    data_store.append(record)
+    cursor.execute(
+        "INSERT INTO attendance (empId, eventType, timestamp) VALUES (?, ?, ?)",
+        (data.get("empId"), data.get("eventType"), data.get("timestamp"))
+    )
+
+    conn.commit()
+    conn.close()
 
     return jsonify({"status": "success"}), 200
     
 @app.route("/get_attendance", methods=["GET"])
 def get_attendance():
-    return jsonify(data_store), 200
+    conn = get_db()
+    cursor = conn.cursor()
 
+    cursor.execute("SELECT empId, eventType, timestamp FROM attendance")
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    data = [
+        {"empId": r[0], "eventType": r[1], "timestamp": r[2]}
+        for r in rows
+    ]
+
+    return jsonify(data), 200
+
+def get_db():
+    return sqlite3.connect("attendance.db")
+    
 @app.route("/admin")
 def admin():
     return render_template("admin.html")
