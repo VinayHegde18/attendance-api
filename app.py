@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask import render_template
 import sqlite3
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -15,12 +16,19 @@ def home():
 def attendance():
     data = request.json
 
+    timestamp = data.get("timestamp")
+
+    # ✅ convert if string
+    if isinstance(timestamp, str):
+        dt = datetime.strptime(timestamp, "%d-%m-%Y %H:%M:%S")
+        timestamp = int(dt.timestamp() * 1000)
+
     conn = get_db()
     cursor = conn.cursor()
 
     cursor.execute(
         "INSERT INTO attendance (empId, eventType, timestamp) VALUES (?, ?, ?)",
-        (data.get("empId"), data.get("eventType"), data.get("timestamp"))
+        (data.get("empId"), data.get("eventType"), timestamp)
     )
 
     conn.commit()
